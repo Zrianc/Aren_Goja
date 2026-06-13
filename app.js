@@ -141,7 +141,7 @@ function sortedPlayers() {
 // =====================
 // ADMIN AUTH
 // =====================
-const ADMIN_PIN = 'CKRS2026'; // Promijeni ovo u svoj PIN!
+const ADMIN_PIN = 'ArenaGoja';
 let isAdmin = false;
 
 function setAdminMode(active) {
@@ -904,6 +904,7 @@ async function init() {
   });
 
 
+  document.getElementById('addPlayerBtn').addEventListener('click', addPlayer);
   document.getElementById('newPlayerName').addEventListener('keydown', e => { if (e.key === 'Enter') addPlayer(); });
   document.getElementById('saveRoundBtn').addEventListener('click', async () => {
     const result = collectRoundData();
