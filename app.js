@@ -1,8 +1,9 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbzprb801V4E48cTdSt4db8eCeAqIPnZTsI02N2zBR30dBiCazdaGDRLilj_IEBsn6k/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
+const DB_NAME = 'arena_goja';
 
-let state = { leagueName: 'ONK-BAK Arena', players: [], rounds: [] };
+let state = { leagueName: 'ONK-BAK Arena GOJA', players: [], rounds: [] };
 let isSaving = false;
 let autoRefreshInterval = null;
 let currentView = 'tablica';
@@ -11,12 +12,12 @@ let currentView = 'tablica';
 // API
 // =====================
 async function apiLoad() {
-  const res = await fetch(API_URL + '?action=load');
+  const res = await fetch(API_URL + '?action=load&db=' + encodeURIComponent(DB_NAME));
   if (!res.ok) throw new Error('Greška pri učitavanju');
   return await res.json();
 }
 async function apiSave(data) {
-  const res = await fetch(API_URL + '?action=save', { method: 'POST', body: JSON.stringify(data) });
+  const res = await fetch(API_URL + '?action=save&db=' + encodeURIComponent(DB_NAME), { method: 'POST', body: JSON.stringify({ ...data, db: DB_NAME }) });
   if (!res.ok) throw new Error('Greška pri spremanju');
   return await res.json();
 }
