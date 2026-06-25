@@ -6,208 +6,159 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>🎲 ARENA SUD</title>
+  <title>ONK-BAK · Liga Čovječe ne ljuti se</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Cinzel:wght@600;700;900&family=Share+Tech+Mono&display=swap" />
 </head>
 <body>
-  <header class="site-header">
-    <div class="header-inner">
-      <div class="logo">
-        <img src="logo.png" alt="ARENA SUD" class="league-logo-small" />
-        <div class="logo-text">
-          <span class="logo-title">ARENA SUD</span>
-          <span class="logo-sub">Liga Čovječe ne ljuti se</span>
-        </div>
-      </div>
-      <nav class="main-nav">
-        <button class="nav-btn active" data-view="tablica">🏆 Tablica</button>
-        <button class="nav-btn" data-view="kola">📊 Kola</button>
-        <button class="nav-btn" data-view="povijest">📋 Povijest</button>
-        <button class="nav-btn admin-only" data-view="novo-kolo" style="display:none;">➕ Novo kolo</button>
-        <button class="nav-btn admin-only" data-view="igraci" style="display:none;">👥 Igrači</button>
-        <button class="nav-btn admin-only" data-view="postavke" style="display:none;">⚙️ Postavke</button>
-      </nav>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <button class="btn btn-sm" id="adminBtn" style="background:transparent;border:1px solid var(--border);color:var(--text-secondary);font-size:.8rem;font-family:var(--manga-font);">🔐 Admin</button>
-        <button class="theme-toggle" id="themeToggle" title="Tamni/Svijetli način">🌙</button>
-      </div>
+  <div class="ambient-bg"></div>
+
+  <aside class="casino-sidebar">
+    <div class="brand-card">
+      <img src="logo.png" alt="ONK-BAK" class="brand-logo" />
+      <div class="brand-sub">Liga Čovječe ne ljuti se</div>
     </div>
-    <div class="maze-bar"></div>
-  </header>
 
-  <main class="main-content">
+    <nav class="side-nav main-nav">
+      <button class="nav-btn active" data-view="tablica"><span>🏆</span> Tablica</button>
+      <button class="nav-btn" data-view="kola"><span>📅</span> Kola</button>
+      <button class="nav-btn admin-only" data-view="novo-kolo" style="display:none;"><span>➕</span> Novo kolo</button>
+      <button class="nav-btn admin-only" data-view="igraci" style="display:none;"><span>👥</span> Igrači</button>
+      <button class="nav-btn" data-view="povijest"><span>⟳</span> Povijest</button>
+      <button class="nav-btn admin-only" data-view="postavke" style="display:none;"><span>⚙</span> Postavke</button>
+    </nav>
 
-    <!-- UKUPNA TABLICA -->
+    <div class="pin-card">
+      <div>ADMIN PIN</div>
+      <strong>GOJA</strong>
+      <button class="admin-lock" id="adminBtn">🔒</button>
+    </div>
+
+    <div class="sidebar-footer">© ONK-BAK<br>ČOVJEČE NE LJUTI SE</div>
+  </aside>
+
+  <main class="app-shell">
+    <section class="hero-banner">
+      <div class="hero-shade"></div>
+      <div class="hero-title">
+        <span>Liga Čovječe ne ljuti se</span>
+        <strong>ONK-BAK</strong>
+      </div>
+      <div class="hero-quote">Igra nije samo sreća.<br>Igra je stav!</div>
+    </section>
+
     <section class="view active" id="view-tablica">
-      <div class="view-header">
-        <h2>🏆 Ukupna Tablica</h2>
-        <div class="sync-bar">
-          <span id="syncStatus" style="font-size:.7rem;font-family:var(--mono-font);color:var(--gold);">⏳ Učitavanje...</span>
-          <button class="btn btn-sm btn-ghost" id="refreshBtn" style="padding:3px 8px;font-size:.7rem;">🔄</button>
+      <div class="dashboard-grid">
+        <div class="leader-panel">
+          <div class="view-header">
+            <h2>🏆 UKUPNA TABLICA</h2>
+            <div class="sync-bar">
+              <span id="syncStatus">⏳ Učitavanje...</span>
+              <button class="btn btn-sm btn-ghost" id="refreshBtn">↻</button>
+            </div>
+            <div class="league-name-wrap"><span id="leagueName" class="league-name-display"></span></div>
+          </div>
+          <div class="penalty-info card">
+            <span>⚠ REZ uključuje kaznu: <strong>+1 bod</strong> za svako propušteno kolo</span>
+          </div>
+          <div class="table-wrap">
+            <div class="scroll-container">
+              <table class="liga-table" id="ligaTable">
+                <thead>
+                  <tr>
+                    <th class="col-rank sticky-col">#</th>
+                    <th class="col-name sticky-col2">Igrač</th>
+                    <th class="col-num" title="Ukupno kola">K</th>
+                    <th class="col-num" title="Dolasci">Dol.</th>
+                    <th class="col-num" title="Propuštena">Prop.</th>
+                    <th class="col-num" title="Partije">Part.</th>
+                    <th class="col-num" title="Bodovi">Bod</th>
+                    <th class="col-num" title="Kazna">Kaz.</th>
+                    <th class="col-rez" title="REZ">REZ</th>
+                    <th class="col-num">🥇</th>
+                    <th class="col-num">🥈</th>
+                    <th class="col-num">🥉</th>
+                    <th class="col-num">💩</th>
+                    <th class="col-num">🪰</th>
+                    <th class="col-history history-header" id="historyHeaderRow"></th>
+                  </tr>
+                </thead>
+                <tbody id="ligaTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="empty-state" id="tablicaEmpty" style="display:none;">
+            <div class="pacman-big">🎲 ✦ 🎲</div>
+            <p>Nema podataka. Dodaj igrače i unesi prvo kolo!</p>
+            <button class="btn btn-primary" onclick="showView('igraci')">👥 Dodaj igrače</button>
+          </div>
         </div>
-        <div class="league-name-wrap">
-          <span id="leagueName" class="league-name-display"></span>
-        </div>
+
+        <aside class="right-rail">
+          <div id="drekStreakWrap" style="display:none;"></div>
+          <div class="rules-card">
+            <h3>ONK-BAK PRAVILA</h3>
+            <p>Tijelo je oružje,<br>duh je ratnik,<br>kocka je sudbina!</p>
+            <div class="dice-glow">⚂ ⚄</div>
+          </div>
+        </aside>
       </div>
-      <div class="penalty-info card" style="margin-bottom:14px;padding:10px 16px;">
-        <span style="font-size:.78rem;color:var(--text-secondary);font-family:var(--manga-font);">⚠️ REZ uključuje kaznu: <strong style="color:var(--fire-red);">+1 bod</strong> za svako propušteno kolo</span>
+
+      <div class="stats-row">
+        <div class="stat-card"><span>📅</span><small>Kola odigrana</small><strong id="statRounds">0</strong></div>
+        <div class="stat-card"><span>👥</span><small>Igrača</small><strong id="statPlayers">0</strong></div>
+        <div class="stat-card"><span>🎲</span><small>Ukupno partija</small><strong id="statGames">0</strong></div>
+        <div class="stat-card"><span>📊</span><small>Prosječni bodovi po partiji</small><strong id="statAvg">0.00</strong></div>
       </div>
-      <div class="table-wrap">
-        <div class="scroll-container">
-          <table class="liga-table" id="ligaTable">
-            <thead>
-              <tr>
-                <th class="col-rank sticky-col">#</th>
-                <th class="col-name sticky-col2">Igrač</th>
-                <th class="col-num" title="Ukupno kola">K</th>
-                <th class="col-num" title="Dolasci">Dol.</th>
-                <th class="col-num" title="Propuštena">Prop.</th>
-                <th class="col-num" title="Partije">Part.</th>
-                <th class="col-num" title="Bodovi">Bod</th>
-                <th class="col-num" title="Kazna">Kaz.</th>
-                <th class="col-rez" title="REZ">REZ</th>
-                <th class="col-num">🥇</th>
-                <th class="col-num">🥈</th>
-                <th class="col-num">🥉</th>
-                <th class="col-num">💩</th>
-                <th class="col-num">🪰</th>
-                <th class="col-history history-header" id="historyHeaderRow"></th>
-              </tr>
-            </thead>
-            <tbody id="ligaTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="empty-state" id="tablicaEmpty" style="display:none;">
-        <div class="pacman-big">🎲 · · · ·</div>
-        <p>Nema podataka. Dodaj igrače i unesi prvo kolo!</p>
-        <button class="btn btn-primary" onclick="showView('igraci')">👥 Dodaj igrače</button>
-      </div>
-      <div id="drekStreakWrap" style="margin-top:20px;display:none;"></div>
     </section>
 
-    <!-- TABLICA PO KOLIMA -->
     <section class="view" id="view-kola">
-      <div class="view-header">
-        <h2>🎲 Tablica po Kolima</h2>
-      </div>
+      <div class="view-header"><h2>📅 TABLICA PO KOLIMA</h2></div>
       <div id="kolaTablesWrap"></div>
-      <div class="empty-state" id="kolaEmpty" style="display:none;">
-        <div class="pacman-big">🎲 · · · ·</div>
-        <p>Nema odigranih kola.</p>
-      </div>
+      <div class="empty-state" id="kolaEmpty" style="display:none;"><div class="pacman-big">🎲 ✦ 🎲</div><p>Nema odigranih kola.</p></div>
     </section>
 
-    <!-- NOVO KOLO -->
     <section class="view" id="view-novo-kolo">
-      <div class="view-header"><h2>➕ Novo Kolo</h2></div>
+      <div class="view-header"><h2>➕ NOVO KOLO</h2></div>
       <div class="round-form-wrap" id="roundFormWrap">
         <div class="round-meta">
-          <div class="form-group">
-            <label>Datum kola</label>
-            <input type="date" id="newRoundDate" class="form-input" />
-          </div>
-          <div class="form-group">
-            <label>Naziv kola</label>
-            <input type="text" id="newRoundName" class="form-input" placeholder="npr. Kolo 5" />
-          </div>
+          <div class="form-group"><label>Datum kola</label><input type="date" id="newRoundDate" class="form-input" /></div>
+          <div class="form-group"><label>Naziv kola</label><input type="text" id="newRoundName" class="form-input" placeholder="npr. Kolo 5" /></div>
         </div>
         <div id="partijeForms"></div>
-        <div class="form-actions">
-          <button class="btn btn-primary" id="saveRoundBtn">💾 Spremi kolo</button>
-          <button class="btn btn-ghost" onclick="showView('tablica')">Odustani</button>
-        </div>
+        <div class="form-actions"><button class="btn btn-primary" id="saveRoundBtn">💾 Spremi kolo</button><button class="btn btn-ghost" onclick="showView('tablica')">Odustani</button></div>
       </div>
-      <div class="empty-state" id="noPlayersMsg" style="display:none;">
-        <div class="pacman-big">🎲 · · · ·</div>
-        <p>Nema dovoljno igrača. Treba minimalno 4.</p>
-        <button class="btn btn-primary" onclick="showView('igraci')">👥 Dodaj igrače</button>
-      </div>
+      <div class="empty-state" id="noPlayersMsg" style="display:none;"><div class="pacman-big">🎲 ✦ 🎲</div><p>Nema dovoljno igrača. Treba minimalno 4.</p><button class="btn btn-primary" onclick="showView('igraci')">👥 Dodaj igrače</button></div>
     </section>
 
-    <!-- POVIJEST -->
     <section class="view" id="view-povijest">
-      <div class="view-header"><h2>📜 Povijest Kola</h2></div>
+      <div class="view-header"><h2>⟳ POVIJEST KOLA</h2></div>
       <div id="povijestList"></div>
-      <div class="empty-state" id="povijestEmpty" style="display:none;">
-        <div class="pacman-big">🎲 · · · ·</div>
-        <p>Nema odigranih kola.</p>
-      </div>
+      <div class="empty-state" id="povijestEmpty" style="display:none;"><div class="pacman-big">🎲 ✦ 🎲</div><p>Nema odigranih kola.</p></div>
     </section>
 
-    <!-- IGRAČI -->
     <section class="view" id="view-igraci">
-      <div class="view-header"><h2>👥 Igrači</h2></div>
+      <div class="view-header"><h2>👥 IGRAČI</h2></div>
       <div class="players-layout">
-        <div class="add-player-card card">
-          <h3>➕ Dodaj igrača</h3>
-          <div class="form-group">
-            <label>Ime igrača</label>
-            <input type="text" id="newPlayerName" class="form-input" placeholder="npr. Luka" maxlength="40" />
-          </div>
-          <button class="btn btn-primary" id="addPlayerBtn">➕ Dodaj</button>
-          <p class="hint">Minimalno 4 igrača. Par/trio se bira pri unosu kola.</p>
-        </div>
-        <div class="players-list-card card">
-          <h3>👥 Igrači u ligi</h3>
-          <div id="playersList"></div>
-        </div>
+        <div class="add-player-card card"><h3>➕ Dodaj igrača</h3><div class="form-group"><label>Ime igrača</label><input type="text" id="newPlayerName" class="form-input" placeholder="npr. Luka" maxlength="40" /></div><button class="btn btn-primary" id="addPlayerBtn">➕ Dodaj</button><p class="hint">Minimalno 4 igrača. Par/trio se bira pri unosu kola.</p></div>
+        <div class="players-list-card card"><h3>👥 Igrači u ligi</h3><div id="playersList"></div></div>
       </div>
     </section>
 
-    <!-- POSTAVKE -->
     <section class="view" id="view-postavke">
-      <div class="view-header"><h2>⚙️ Postavke</h2></div>
+      <div class="view-header"><h2>⚙ POSTAVKE</h2></div>
       <div class="settings-grid">
-        <div class="card">
-          <h3>🏆 Naziv lige</h3>
-          <div class="form-group">
-            <input type="text" id="leagueNameInput" class="form-input" placeholder="Naziv vaše lige..." />
-          </div>
-          <button class="btn btn-primary" id="saveLeagueNameBtn">Spremi naziv</button>
-        </div>
-        <div class="card">
-          <h3>💾 Export / Import</h3>
-          <div class="btn-group">
-            <button class="btn btn-secondary" id="exportBtn">📤 Export JSON</button>
-            <label class="btn btn-secondary" style="cursor:pointer;">
-              📥 Import JSON
-              <input type="file" id="importFile" accept=".json" style="display:none;" />
-            </label>
-          </div>
-        </div>
-        <div class="card danger-card">
-          <h3>⚠️ Reset lige</h3>
-          <p>Briše SVE podatke. Nepovratno!</p>
-          <button class="btn btn-danger" id="resetBtn">🗑️ Reset lige</button>
-        </div>
+        <div class="card"><h3>🏆 Naziv lige</h3><div class="form-group"><input type="text" id="leagueNameInput" class="form-input" placeholder="Naziv vaše lige..." /></div><button class="btn btn-primary" id="saveLeagueNameBtn">Spremi naziv</button></div>
+        <div class="card"><h3>💾 Export / Import</h3><div class="btn-group"><button class="btn btn-secondary" id="exportBtn">📤 Export JSON</button><label class="btn btn-secondary" style="cursor:pointer;">📥 Import JSON<input type="file" id="importFile" accept=".json" style="display:none;" /></label></div></div>
+        <div class="card danger-card"><h3>⚠ Reset lige</h3><p>Briše SVE podatke. Nepovratno!</p><button class="btn btn-danger" id="resetBtn">🗑 Reset lige</button></div>
       </div>
     </section>
-
   </main>
 
-  <!-- MODAL: STATISTIKA IGRAČA -->
-  <div class="modal-overlay" id="playerModal">
-    <div class="modal-box">
-      <button class="modal-close" id="modalClose">✕</button>
-      <div id="playerModalContent"></div>
-    </div>
-  </div>
-
-  <!-- MODAL: ADMIN PIN -->
-  <div class="modal-overlay" id="adminModal">
-    <div class="modal-box" style="max-width:340px;text-align:center;">
-      <button class="modal-close" id="adminModalClose">✕</button>
-      <div style="font-size:2.5rem;margin-bottom:12px;">🔐</div>
-      <h3 style="font-family:var(--manga-font);color:var(--gold);font-size:1.2rem;margin-bottom:16px;text-shadow:1px 1px 0 var(--blood-red);">ADMIN PRIJAVA</h3>
-      <input type="password" id="adminPinInput" class="form-input" placeholder="Unesite PIN..." style="text-align:center;font-size:1.2rem;letter-spacing:6px;margin-bottom:12px;" maxlength="20" />
-      <button class="btn btn-primary" id="adminPinSubmit" style="width:100%;">Prijava</button>
-      <p id="adminPinError" style="color:var(--fire-red);font-family:var(--manga-font);font-size:.85rem;margin-top:8px;display:none;">⚠️ Pogrešan PIN!</p>
-    </div>
-  </div>
-
+  <div class="modal-overlay" id="playerModal"><div class="modal-box"><button class="modal-close" id="modalClose">✕</button><div id="playerModalContent"></div></div></div>
+  <div class="modal-overlay" id="adminModal"><div class="modal-box admin-modal-box"><button class="modal-close" id="adminModalClose">✕</button><div class="modal-icon">🔐</div><h3>ADMIN PRIJAVA</h3><input type="password" id="adminPinInput" class="form-input" placeholder="Unesite PIN..." maxlength="20" /><button class="btn btn-primary" id="adminPinSubmit">Prijava</button><p id="adminPinError" style="display:none;">⚠ Pogrešan PIN!</p></div></div>
   <div class="toast" id="toast"></div>
-  <script src="app.js?v=arena-sud-lounge-sheet-1"></script>
+  <script src="app.js?v=casino-final-1"></script>
 </body>
 </html>

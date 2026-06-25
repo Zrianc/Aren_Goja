@@ -2,7 +2,7 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
 
-let state = { leagueName: 'ARENA SUD', players: [], rounds: [] };
+let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
 let autoRefreshInterval = null;
 let currentView = 'tablica';
@@ -27,7 +27,7 @@ async function loadFromCloud() {
     if (data.error) throw new Error(data.error);
     state = { ...state, ...data };
     renderCurrentView();
-    showSyncStatus('✅ Sinkronizirano');
+    showSyncStatus('● SINHRO: U AŽURU');
   } catch(e) { showSyncStatus('❌ Greška: ' + e.message, true); }
 }
 async function saveToCloud() {
@@ -37,7 +37,7 @@ async function saveToCloud() {
   try {
     const result = await apiSave(state);
     if (!result.ok) throw new Error('Nije spremljeno');
-    showSyncStatus('✅ Spremljeno');
+    showSyncStatus('● SPREMLJENO');
   } catch(e) {
     showSyncStatus('❌ Greška pri spremanju', true);
     showToast('Greška: ' + e.message, true);
@@ -47,7 +47,7 @@ function showSyncStatus(msg, isError = false) {
   const el = document.getElementById('syncStatus');
   if (!el) return;
   el.textContent = msg;
-  el.style.color = isError ? 'var(--ghost-red)' : 'var(--neon-blue)';
+  el.style.color = isError ? 'var(--fire-red)' : 'var(--casino-green)';
 }
 function startAutoRefresh() {
   if (autoRefreshInterval) clearInterval(autoRefreshInterval);
@@ -836,7 +836,7 @@ async function importData(file) {
 async function resetLeague() {
   const input = prompt('Upiši "RESET" za potvrdu:');
   if (input !== 'RESET') { showToast('Reset otkazan'); return; }
-  state = { leagueName: 'Čovječe Liga', players: [], rounds: [] };
+  state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
   await saveToCloud();
   showView('tablica');
   showToast('Liga resetirana');
@@ -946,3 +946,36 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+
+/* ===== CASINO UI EXTRAS ===== */
+(function(){
+  const oldRenderTable = renderTable;
+  renderTable = function(){ oldRenderTable(); updateCasinoStats(); };
+  const oldRenderCurrentView = renderCurrentView;
+  renderCurrentView = function(){ oldRenderCurrentView(); updateCasinoStats(); };
+  window.addEventListener('DOMContentLoaded', updateCasinoStats);
+})();
+function updateCasinoStats(){
+  try {
+    const rounds = state.rounds?.length || 0;
+    const players = state.players?.length || 0;
+    let games = 0, points = 0, parts = 0;
+    (state.rounds || []).forEach(r => (r.games || []).forEach(g => {
+      if (!g) return;
+      games++;
+      const ng = normalizeGame(g);
+      (ng.positions || []).forEach(pos => {
+        const cnt = (pos.players || []).length || 1;
+        points += (pos.place || 0) * cnt;
+        parts += cnt;
+      });
+    }));
+    const avg = parts ? (points / parts).toFixed(2) : '0.00';
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set('statRounds', rounds);
+    set('statPlayers', players);
+    set('statGames', games);
+    set('statAvg', avg);
+  } catch(e) {}
+}
