@@ -6,19 +6,18 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>🥊 ONK-BAK Arena</title>
+  <title>🎲 ARENA SUD</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" />
 </head>
 <body>
-  <div class="retro-bg"><span></span><span></span><span></span><span></span></div>
   <header class="site-header">
     <div class="header-inner">
       <div class="logo">
-        <img src="logo.png" alt="ČKRS" class="league-logo-small" />
+        <img src="logo.png" alt="ARENA SUD" class="league-logo-small" />
         <div class="logo-text">
-          <span class="logo-title">ONK-BAK ARENA</span>
-          <span class="logo-sub">Retro 90s / Čovječe ne ljuti se</span>
+          <span class="logo-title">ARENA SUD</span>
+          <span class="logo-sub">Liga Čovječe ne ljuti se</span>
         </div>
       </div>
       <nav class="main-nav">
@@ -34,7 +33,7 @@
         <button class="theme-toggle" id="themeToggle" title="Tamni/Svijetli način">🌙</button>
       </div>
     </div>
-    <div class="maze-bar"><span>ONK-BAK • BAMBUS ARENA • RETRO 90s • ČOVJEČE NE LJUTI SE • ONK-BAK</span></div>
+    <div class="maze-bar"></div>
   </header>
 
   <main class="main-content">
@@ -42,7 +41,7 @@
     <!-- UKUPNA TABLICA -->
     <section class="view active" id="view-tablica">
       <div class="view-header">
-        <h2>🎲 ONK-BAK Tablica</h2>
+        <h2>🏆 Ukupna Tablica</h2>
         <div class="sync-bar">
           <span id="syncStatus" style="font-size:.7rem;font-family:var(--mono-font);color:var(--gold);">⏳ Učitavanje...</span>
           <button class="btn btn-sm btn-ghost" id="refreshBtn" style="padding:3px 8px;font-size:.7rem;">🔄</button>
@@ -81,7 +80,7 @@
         </div>
       </div>
       <div class="empty-state" id="tablicaEmpty" style="display:none;">
-        <div class="pacman-big">♟ · 🎲 · ♟ · 🎲</div>
+        <div class="pacman-big">🎲 · · · ·</div>
         <p>Nema podataka. Dodaj igrače i unesi prvo kolo!</p>
         <button class="btn btn-primary" onclick="showView('igraci')">👥 Dodaj igrače</button>
       </div>
@@ -91,18 +90,18 @@
     <!-- TABLICA PO KOLIMA -->
     <section class="view" id="view-kola">
       <div class="view-header">
-        <h2>🎮 Tablica po Kolima</h2>
+        <h2>🎲 Tablica po Kolima</h2>
       </div>
       <div id="kolaTablesWrap"></div>
       <div class="empty-state" id="kolaEmpty" style="display:none;">
-        <div class="pacman-big">♟ · 🎲 · ♟ · 🎲</div>
+        <div class="pacman-big">🎲 · · · ·</div>
         <p>Nema odigranih kola.</p>
       </div>
     </section>
 
     <!-- NOVO KOLO -->
     <section class="view" id="view-novo-kolo">
-      <div class="view-header"><h2>🎲 Novo Kolo</h2></div>
+      <div class="view-header"><h2>➕ Novo Kolo</h2></div>
       <div class="round-form-wrap" id="roundFormWrap">
         <div class="round-meta">
           <div class="form-group">
@@ -121,7 +120,7 @@
         </div>
       </div>
       <div class="empty-state" id="noPlayersMsg" style="display:none;">
-        <div class="pacman-big">♟ · 🎲 · ♟ · 🎲</div>
+        <div class="pacman-big">🎲 · · · ·</div>
         <p>Nema dovoljno igrača. Treba minimalno 4.</p>
         <button class="btn btn-primary" onclick="showView('igraci')">👥 Dodaj igrače</button>
       </div>
@@ -129,17 +128,17 @@
 
     <!-- POVIJEST -->
     <section class="view" id="view-povijest">
-      <div class="view-header"><h2>📜 ONK-BAK Povijest</h2></div>
+      <div class="view-header"><h2>📜 Povijest Kola</h2></div>
       <div id="povijestList"></div>
       <div class="empty-state" id="povijestEmpty" style="display:none;">
-        <div class="pacman-big">♟ · 🎲 · ♟ · 🎲</div>
+        <div class="pacman-big">🎲 · · · ·</div>
         <p>Nema odigranih kola.</p>
       </div>
     </section>
 
     <!-- IGRAČI -->
     <section class="view" id="view-igraci">
-      <div class="view-header"><h2>♟️ Igrači</h2></div>
+      <div class="view-header"><h2>👥 Igrači</h2></div>
       <div class="players-layout">
         <div class="add-player-card card">
           <h3>➕ Dodaj igrača</h3>
@@ -151,7 +150,7 @@
           <p class="hint">Minimalno 4 igrača. Par/trio se bira pri unosu kola.</p>
         </div>
         <div class="players-list-card card">
-          <h3>♟️ Igrači u ligi</h3>
+          <h3>👥 Igrači u ligi</h3>
           <div id="playersList"></div>
         </div>
       </div>
@@ -209,6 +208,6 @@
   </div>
 
   <div class="toast" id="toast"></div>
-  <script src="app.js?v=90"></script>
+  <script src="app.js?v=arena-sud-lounge-sheet-1"></script>
 </body>
 </html>

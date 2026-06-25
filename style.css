@@ -684,57 +684,45 @@ body {
 [data-theme="light"] .kolo-header { background: #f5e8c0; }
 [data-theme="light"] .kolo-tablica-header { background: #f5e8c0; }
 
-/* ===== ONK-BAK RETRO 90s/2000s GAME SKIN ===== */
-:root {
-  --manga-font: 'Bangers', 'Orbitron', cursive;
-  --green: #2dc653;
-  --pixel-blue: #00d4ff;
-  --retro-purple: #6d28d9;
+
+/* ===== ARENA SUD LOUNGE EDITION ===== */
+:root{
+  --manga-font:'Orbitron',system-ui,sans-serif;
+  --gold:#d8a84f;--gold-bright:#ffd681;--gold-dim:#8b6830;
+  --blood-red:#8d1438;--fire-red:#ff4fd8;--ember:#00cfff;
+  --dark-wood:#160b08;--wood:#24120b;--wood-mid:#3a2113;
+  --temple:#050309;--stone:#0d0d13;--stone-mid:#17131b;--bone:#f7ead1;
+  --bamboo:#56351f;--jade:#28d970;
+  --bg-main:#050309;--bg-card:rgba(10,10,16,.86);--bg-card2:rgba(18,15,23,.92);--bg-row-hover:rgba(255,214,129,.08);
+  --border:rgba(255,214,129,.18);--border-bright:rgba(255,214,129,.32);
+  --text-primary:#f7ead1;--text-secondary:#bca783;--text-dim:#6e5a45;
+  --rank-1:#ffd681;--rank-2:#cfd7df;--rank-3:#c07a36;
+  --ghost-red:#ff496a;--neon-blue:#00cfff;--pac-yellow:#ffd681;
+  --color-green:#28d970;--font-display:'Orbitron',system-ui,sans-serif;--font-mono:'Share Tech Mono',monospace;
+  --glow-gold:0 0 14px rgba(255,214,129,.45),0 0 32px rgba(255,214,129,.16);
+  --glow-red:0 0 14px rgba(255,79,216,.35);
+  --radius:14px;--radius-sm:8px;
 }
-body {
-  background-color: #070501;
+body{
+  background:#050309;
   background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px),
-    radial-gradient(circle at 15% 20%, rgba(0,212,255,0.10), transparent 28%),
-    radial-gradient(circle at 85% 15%, rgba(255,215,0,0.10), transparent 24%),
-    radial-gradient(circle at 50% 100%, rgba(139,0,0,0.35), transparent 55%);
-  background-size: 32px 32px, 32px 32px, auto, auto, auto;
+    radial-gradient(circle at 14% 12%, rgba(185,42,255,.22), transparent 26%),
+    radial-gradient(circle at 86% 18%, rgba(0,207,255,.16), transparent 24%),
+    linear-gradient(180deg,#07030c 0%,#100713 48%,#050309 100%);
+  position:relative;overflow-x:hidden;
 }
-.retro-bg { position: fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
-.retro-bg span { position:absolute; opacity:.22; filter: drop-shadow(0 0 8px rgba(255,215,0,.35)); }
-.retro-bg span:nth-child(1), .retro-bg span:nth-child(2) {
-  top:0; bottom:0; width:44px;
-  background: repeating-linear-gradient(0deg,#37551d 0 20px,#1b2a0c 20px 24px,#87631f 24px 27px);
-  box-shadow: inset 0 0 16px #000, 0 0 22px rgba(0,0,0,.9);
-  opacity:.75;
-}
-.retro-bg span:nth-child(1){left:0}.retro-bg span:nth-child(2){right:0}
-.retro-bg span:nth-child(3){left:8%;bottom:6%;font-size:5rem}.retro-bg span:nth-child(3)::before{content:'♟'}
-.retro-bg span:nth-child(4){right:9%;top:23%;font-size:4rem}.retro-bg span:nth-child(4)::before{content:'🎲'}
-.site-header { background: linear-gradient(180deg,#130d04,#090601); border-bottom:4px solid var(--gold-bright); }
-.header-inner { position:relative; z-index:1; }
-.header-inner::after { content:'ONK-BAK'; margin-left:auto; font-family:var(--manga-font); color:rgba(255,215,0,.16); letter-spacing:10px; font-size:1.1rem; }
-.league-logo-small { width:54px; height:54px; border-radius:50%; background:#050505; object-fit:contain; }
-.logo-title { font-size:1.8rem; color:#ffe169; text-shadow:3px 3px 0 #000, 0 0 16px rgba(255,215,0,.65); }
-.logo-sub { color:var(--pixel-blue); text-shadow:2px 2px 0 #000; }
-.maze-bar { height:auto; min-height:26px; display:flex; align-items:center; justify-content:center; font-family:var(--manga-font); letter-spacing:5px; color:#070501; background:linear-gradient(90deg,#2f4e18,#d4a017,#00d4ff,#d4a017,#2f4e18); text-shadow:none; overflow:hidden; }
-.main-content { position:relative; z-index:1; }
-.main-content::before { content:'ONK-BAK'; display:block; text-align:center; font-family:var(--manga-font); letter-spacing:14px; color:rgba(255,215,0,.30); margin-bottom:14px; font-size:1.35rem; }
-.card, .table-wrap, .kolo-card, .partija-card, .streak-table-wrap { background:rgba(18,16,10,.92); border:2px solid rgba(212,160,23,.38); box-shadow:0 0 0 3px rgba(0,0,0,.45), 0 10px 30px rgba(0,0,0,.7); }
-.card::before, .table-wrap::before, .partija-card::before { content:'ONK-BAK'; display:block; height:20px; line-height:20px; text-align:center; font-family:var(--manga-font); letter-spacing:6px; font-size:.85rem; color:#0b0701; background:linear-gradient(90deg,#2d501c,#d4a017,#2d501c); }
-.table-wrap::before { border-bottom:2px solid #000; }
-.view-header h2 { color:#ffe169; text-shadow:3px 3px 0 #000, 0 0 14px rgba(255,215,0,.55); }
-.nav-btn { border-width:2px; box-shadow:2px 2px 0 #000; background:rgba(0,0,0,.25); }
-.nav-btn.active { background:linear-gradient(180deg,#ffe169,#b78312); box-shadow:3px 3px 0 #000, 0 0 18px rgba(255,215,0,.45); }
-.liga-table th { background:linear-gradient(180deg,#1a1204,#0b0802); color:#ffe169; }
-.liga-table tbody tr:nth-child(even) { background:rgba(255,215,0,.025); }
-.liga-table tbody tr:hover { background:rgba(0,212,255,.10); }
-.rank-badge { border:2px solid #000; box-shadow:2px 2px 0 rgba(0,0,0,.8); }
-.player-name-cell::before { content:'♟'; color:#ffd700; text-shadow:0 0 8px rgba(255,215,0,.55); }
-.btn { text-transform:uppercase; border:2px solid rgba(0,0,0,.45); box-shadow:3px 3px 0 #000; }
-.btn-primary { background:linear-gradient(180deg,#ffe169,#d4a017); }
-.form-input { border:2px solid var(--border); background:#090701; }
-.form-input:focus { border-color:var(--pixel-blue); box-shadow:0 0 0 2px rgba(0,212,255,.25), 0 0 16px rgba(0,212,255,.25); }
-.toast { border:2px solid #000; }
-@media (max-width: 768px) { .header-inner::after { display:none; } .maze-bar { font-size:.75rem; letter-spacing:2px; } .logo-title { font-size:1.15rem; } }
+body::before{content:"";position:fixed;inset:104px 0 auto 0;height:250px;z-index:-2;pointer-events:none;background:linear-gradient(180deg,rgba(20,7,14,.2),rgba(0,0,0,.78)),repeating-linear-gradient(90deg,rgba(255,214,129,.18) 0 2px,transparent 2px 82px);border-top:1px solid rgba(255,214,129,.2);border-bottom:1px solid rgba(255,214,129,.18);box-shadow:0 30px 60px rgba(0,0,0,.8)}
+body::after{content:"";position:fixed;top:130px;left:50%;width:min(760px,70vw);height:145px;transform:translateX(-50%);z-index:-1;pointer-events:none;background:
+  linear-gradient(135deg,#ff0f8a,#2b001a) 0 0/24% 100% no-repeat,
+  linear-gradient(135deg,#009dff,#001d42) 33% 0/24% 100% no-repeat,
+  linear-gradient(135deg,#46ff63,#09240e) 66% 0/24% 100% no-repeat,
+  linear-gradient(135deg,#ffb12a,#351400) 100% 0/24% 100% no-repeat;
+  border:1px solid rgba(255,214,129,.25);box-shadow:0 0 25px rgba(240,68,255,.25),0 0 40px rgba(0,207,255,.12);opacity:.58;}
+.site-header{background:rgba(5,3,9,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,214,129,.26);box-shadow:0 0 30px rgba(240,68,255,.12)}
+.header-inner{padding:14px 22px}.logo-title{font-family:var(--font-display);font-size:1.55rem;color:var(--gold-bright);text-shadow:0 0 18px rgba(255,214,129,.5);letter-spacing:4px}.logo-sub{font-family:'Share Tech Mono',monospace;color:#ff4fd8;text-shadow:0 0 14px rgba(255,79,216,.55);font-size:.7rem;letter-spacing:1px;text-transform:none}.league-logo-small{width:54px;height:54px;border-radius:12px;object-fit:contain;background:#020204;border:1px solid rgba(255,214,129,.4);box-shadow:var(--glow-gold)}
+.nav-btn{font-family:var(--font-display);font-size:.78rem;border-color:rgba(255,214,129,.14);background:rgba(255,255,255,.025);border-radius:12px;padding:10px 15px;color:#bca783}.nav-btn:hover{color:#ffd681;border-color:#ffd681;box-shadow:0 0 20px rgba(255,214,129,.16)}.nav-btn.active{background:linear-gradient(180deg,rgba(255,214,129,.22),rgba(255,214,129,.08));color:#ffd681;border-color:#ffd681;box-shadow:0 0 25px rgba(255,214,129,.22),inset 0 0 25px rgba(240,68,255,.08)}
+.theme-toggle{border-radius:12px}.maze-bar{height:3px;background:linear-gradient(90deg,transparent,#ff4fd8,#00cfff,#ffd681,transparent);opacity:.95}.main-content{padding-top:300px;max-width:1480px}.view-header h2,.card h3,.kolo-title,.partija-num,.player-item-name,.player-modal-name{font-family:var(--font-display);text-shadow:0 0 18px rgba(255,214,129,.22);letter-spacing:1px}.view-header h2{font-size:1.5rem;color:#ffd681}.league-name-display{font-family:'Share Tech Mono',monospace;color:#ff4fd8}.card,.table-wrap,.kolo-card,.partija-card,.modal-box,.streak-table-wrap{background:linear-gradient(180deg,rgba(14,14,20,.92),rgba(7,7,11,.94));border:1px solid rgba(255,214,129,.18);border-radius:18px;box-shadow:0 18px 45px rgba(0,0,0,.55),0 0 22px rgba(240,68,255,.08)}
+.liga-table thead,.sticky-col,.sticky-col2,.kolo-header,.kolo-tablica-header{background:rgba(4,4,8,.95)}.liga-table th{font-family:var(--font-display);font-size:.72rem;color:#d8a84f;text-shadow:none;border-bottom:1px solid rgba(255,214,129,.24)}.liga-table td{border-color:rgba(255,214,129,.10)}.liga-table tbody tr:hover .sticky-col,.liga-table tbody tr:hover .sticky-col2{background:rgba(255,214,129,.08)}.player-name-cell{font-family:var(--font-display);font-size:.92rem;color:#ffd681}.rank-badge{border-radius:8px}.rank-1{background:linear-gradient(180deg,#ffe09b,#b67922);box-shadow:var(--glow-gold)}.rank-other{background:rgba(255,255,255,.06)}.rez-good{color:#28d970;text-shadow:0 0 12px rgba(40,217,112,.35)}.rez-mid{color:#ffd681}.rez-bad{color:#ff496a;text-shadow:0 0 12px rgba(255,73,106,.35)}.btn{font-family:var(--font-display);border-radius:10px}.btn-primary{background:linear-gradient(135deg,#ffd681,#a87020);box-shadow:0 0 20px rgba(255,214,129,.26);color:#120707}.btn-secondary,.btn-ghost{background:rgba(255,255,255,.03);border:1px solid rgba(255,214,129,.18)}.form-input{background:rgba(255,255,255,.045);border-color:rgba(255,214,129,.18);border-radius:10px}.toast{font-family:var(--font-display);background:#ffd681}.penalty-info{background:rgba(0,0,0,.4)}.empty-state .pacman-big{font-family:var(--font-display)}
+/* mini lounge stats strip */
+#view-tablica::after{content:"🎲 ARENA SUD · privatna liga · ONK-BAK logo";display:block;margin-top:18px;padding:15px;border:1px solid rgba(255,214,129,.14);border-radius:16px;background:rgba(0,0,0,.35);font-family:'Share Tech Mono',monospace;color:#ff4fd8;text-align:center;box-shadow:inset 0 0 24px rgba(240,68,255,.08)}
+@media(max-width:768px){body::after{display:none}.main-content{padding-top:150px}.logo-title{font-size:1.1rem}.league-logo-small{width:42px;height:42px}.nav-btn{font-size:.7rem;padding:8px 10px}}
