@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🥊 Ong-Bak Liga</title>
+  <title>🥊 ONK-BAK Arena</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&display=swap">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -146,6 +146,23 @@
       font-size: 0.55rem; color: #3d2e00; letter-spacing: 2px;
     }
 
+
+    .hero-logo {
+      width: 150px; height: 150px; object-fit: contain; border-radius: 50%;
+      filter: drop-shadow(0 0 18px rgba(255,215,0,.65));
+      image-rendering: auto;
+      border: 3px solid #D4A017; background: rgba(0,0,0,.35);
+    }
+    .page::before, .page::after {
+      content:''; position: fixed; top:0; bottom:0; width:54px; opacity:.7; pointer-events:none;
+      background: repeating-linear-gradient(0deg,#35551c 0 22px,#21370f 22px 26px,#6b4b1b 26px 29px);
+      box-shadow: inset 0 0 18px #000, 0 0 18px rgba(212,160,23,.2);
+    }
+    .page::before { left:0; } .page::after { right:0; }
+    .main-title { text-transform: uppercase; }
+    .gold-line::after { content:' ONK-BAK '; color:#FFD700; letter-spacing:8px; position:absolute; transform:translate(-50%,-45%); left:50%; background:#0a0800; padding:0 16px; }
+    .gold-line { position:relative; }
+
     @media (max-width: 480px) {
       .info-grid { grid-template-columns: 1fr 1fr; }
       .enter-btn { padding: 14px 36px; }
@@ -154,6 +171,7 @@
 </head>
 <body>
   <main class="page">
+    <img src="logo.png" alt="ONK-BAK logo" class="hero-logo" />
 
     <!-- Figure dekoracije -->
     <div class="figures-row">
@@ -165,8 +183,8 @@
 
     <!-- Naslov -->
     <div class="title-wrap">
-      <div class="main-title">ONG-BAK LIGA</div>
-      <div class="sub-title">Čovječe ne ljuti se · ČKRS</div>
+      <div class="main-title">ONK-BAK ARENA</div>
+      <div class="sub-title">RETRO 90s • ČOVJEČE NE LJUTI SE • ČKRS</div>
     </div>
 
     <div class="gold-line"></div>
@@ -197,11 +215,11 @@
 
     <!-- Enter gumb -->
     <a href="app.html" class="enter-btn">
-      ⚔️ ULAZ U ARENU
+      🎲 ULAZ U ONK-BAK
     </a>
 
   </main>
 
-  <footer>© ČKRS · Ong-Bak Liga · Čovječe ne ljuti se</footer>
+  <footer>© ČKRS · ONK-BAK Arena · Čovječe ne ljuti se</footer>
 </body>
 </html>
