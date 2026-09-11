@@ -131,9 +131,16 @@ function sortedPlayers() {
       if (as.partije === 0 && bs.partije === 0) return 0;
       if (as.partije === 0) return 1;
       if (bs.partije === 0) return -1;
+      // 1. Manji rez (bodovi) je bolji
       if (as.rez !== bs.rez) return as.rez - bs.rez;
-      if (as.p1 !== bs.p1) return bs.p1 - as.p1;
+      // 2. Kod izjednačenja: manje drekova je bolje
       if (as.drekovi !== bs.drekovi) return as.drekovi - bs.drekovi;
+      // 3. Kod izjednačenja: manje muha je bolje
+      if (as.muhe !== bs.muhe) return as.muhe - bs.muhe;
+      // 4. Kod izjednačenja: bolji plasmani kroz partije (više 1. mjesta, pa 2., pa 3.)
+      if (as.p1 !== bs.p1) return bs.p1 - as.p1;
+      if (as.p2 !== bs.p2) return bs.p2 - as.p2;
+      if (as.p3 !== bs.p3) return bs.p3 - as.p3;
       return bs.partije - as.partije;
     });
 }
