@@ -121,14 +121,14 @@
     </section>
 
     <section class="view" id="view-novo-kolo">
-      <div class="view-header"><h2>➕ NOVO KOLO</h2></div>
+      <div class="view-header"><h2 id="novoKoloTitle">➕ NOVO KOLO</h2></div>
       <div class="round-form-wrap" id="roundFormWrap">
         <div class="round-meta">
           <div class="form-group"><label>Datum kola</label><input type="date" id="newRoundDate" class="form-input" /></div>
           <div class="form-group"><label>Naziv kola</label><input type="text" id="newRoundName" class="form-input" placeholder="npr. Kolo 5" /></div>
         </div>
         <div id="partijeForms"></div>
-        <div class="form-actions"><button class="btn btn-primary" id="saveRoundBtn">💾 Spremi kolo</button><button class="btn btn-ghost" onclick="showView('tablica')">Odustani</button></div>
+        <div class="form-actions"><button class="btn btn-primary" id="saveRoundBtn">💾 Spremi kolo</button><button class="btn btn-ghost" onclick="cancelRoundEdit()">Odustani</button></div>
       </div>
       <div class="empty-state" id="noPlayersMsg" style="display:none;"><div class="pacman-big">🎲 ✦ 🎲</div><p>Nema dovoljno igrača. Treba minimalno 4.</p><button class="btn btn-primary" onclick="showView('igraci')">👥 Dodaj igrače</button></div>
     </section>
@@ -160,6 +160,6 @@
   <div class="modal-overlay" id="playerModal"><div class="modal-box"><button class="modal-close" id="modalClose">✕</button><div id="playerModalContent"></div></div></div>
   <div class="modal-overlay" id="adminModal"><div class="modal-box admin-modal-box"><button class="modal-close" id="adminModalClose">✕</button><div class="modal-icon">🔐</div><h3>ADMIN PRIJAVA</h3><input type="password" id="adminPinInput" class="form-input" placeholder="Unesite PIN..." maxlength="20" /><button class="btn btn-primary" id="adminPinSubmit">Prijava</button><p id="adminPinError" style="display:none;">⚠ Pogrešan PIN!</p></div></div>
   <div class="toast" id="toast"></div>
-  <script src="app.js?v=casino-final-2"></script>
+  <script src="app.js?v=casino-final-3"></script>
 </body>
 </html>

@@ -6,6 +6,7 @@ let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
 let autoRefreshInterval = null;
 let currentView = 'tablica';
+let editingRoundId = null;
 
 // =====================
 // API
@@ -575,13 +576,70 @@ function renderRoundForm() {
   }
   wrap.style.display = 'flex';
   noMsg.style.display = 'none';
+
+  const editingRound = editingRoundId ? state.rounds.find(r => r.id === editingRoundId) : null;
+
+  const titleEl = document.getElementById('novoKoloTitle');
+  const saveBtn = document.getElementById('saveRoundBtn');
+  if (titleEl) titleEl.textContent = editingRound ? '✏️ UREDI KOLO' : '➕ NOVO KOLO';
+  if (saveBtn) saveBtn.textContent = editingRound ? '💾 Spremi izmjene' : '💾 Spremi kolo';
+
   const dateInput = document.getElementById('newRoundDate');
-  if (!dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
   const nameInput = document.getElementById('newRoundName');
-  if (!nameInput.value) nameInput.value = `Kolo ${state.rounds.length + 1}`;
+  if (editingRound) {
+    dateInput.value = editingRound.date || '';
+    nameInput.value = editingRound.name || '';
+  } else {
+    dateInput.value = new Date().toISOString().split('T')[0];
+    nameInput.value = `Kolo ${state.rounds.length + 1}`;
+  }
+
   const container = document.getElementById('partijeForms');
   container.innerHTML = '';
   for (let i = 1; i <= 4; i++) container.appendChild(buildPartijaCard(i));
+
+  if (editingRound) {
+    editingRound.games.forEach((game, idx) => {
+      if (game) fillPartijaCard(idx + 1, game);
+    });
+  }
+}
+
+function fillPartijaCard(num, game) {
+  const g = normalizeGame(game);
+  const byPlace = {};
+  g.positions.forEach(p => { byPlace[p.place] = p; });
+  for (let pos = 0; pos < 4; pos++) {
+    const place = pos + 1;
+    const posData = byPlace[place];
+    if (!posData) continue;
+    const typeSel = document.querySelector(`.pos-type[data-partija="${num}"][data-pos="${pos}"]`);
+    if (!typeSel) continue;
+    const count = posData.players.length;
+    typeSel.value = count === 1 ? 'solo' : count === 2 ? 'par' : 'trio';
+    updatePositionInputs(num, pos);
+    posData.players.forEach((pid, i) => {
+      const sel = document.querySelector(`.pos-player-${i+1}[data-partija="${num}"][data-pos="${pos}"]`);
+      if (sel) sel.value = pid;
+    });
+    if (place === 4) {
+      const muheSel = document.querySelector(`.pos-muhe[data-partija="${num}"][data-pos="${pos}"]`);
+      if (muheSel) muheSel.value = String(posData.muhe || 0);
+    }
+  }
+}
+
+function editRound(roundId) {
+  if (!isAdmin) { openAdminModal(); return; }
+  editingRoundId = roundId;
+  showView('novo-kolo');
+}
+
+function cancelRoundEdit() {
+  editingRoundId = null;
+  document.getElementById('newRoundDate').value = '';
+  document.getElementById('newRoundName').value = '';
+  showView(state.rounds.length > 0 ? 'povijest' : 'tablica');
 }
 
 function buildPartijaCard(num) {
@@ -730,6 +788,7 @@ function renderPovijest() {
       <div class="kolo-header">
         <div><span class="kolo-title">${escHtml(roundName)}</span>${fmtDate ? `<span class="kolo-date"> · ${fmtDate}</span>` : ''}</div>
         <div class="kolo-actions">
+          ${isAdmin ? `<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); editRound('${round.id}')">✏️</button>` : ''}
           <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); deleteRound('${round.id}')">🗑️</button>
         </div>
       </div>
@@ -917,7 +976,10 @@ async function init() {
 
   initMazeDots();
   document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => showView(btn.dataset.view));
+    btn.addEventListener('click', () => {
+      if (btn.dataset.view === 'novo-kolo') editingRoundId = null;
+      showView(btn.dataset.view);
+    });
   });
   document.getElementById('themeToggle')?.addEventListener('click', () => {
     const html = document.documentElement;
@@ -945,12 +1007,23 @@ async function init() {
   document.getElementById('saveRoundBtn').addEventListener('click', async () => {
     const result = collectRoundData();
     if (!result.ok) { showToast(result.errors[0], true); return; }
-    state.rounds.push(result.round);
-    document.getElementById('newRoundDate').value = '';
-    document.getElementById('newRoundName').value = '';
-    await saveToCloud();
-    showView('tablica');
-    showToast('Kolo spremljeno! 🎉');
+    if (editingRoundId) {
+      const idx = state.rounds.findIndex(r => r.id === editingRoundId);
+      if (idx !== -1) state.rounds[idx] = { ...result.round, id: editingRoundId };
+      editingRoundId = null;
+      document.getElementById('newRoundDate').value = '';
+      document.getElementById('newRoundName').value = '';
+      await saveToCloud();
+      showView('povijest');
+      showToast('Kolo ažurirano! ✏️');
+    } else {
+      state.rounds.push(result.round);
+      document.getElementById('newRoundDate').value = '';
+      document.getElementById('newRoundName').value = '';
+      await saveToCloud();
+      showView('tablica');
+      showToast('Kolo spremljeno! 🎉');
+    }
   });
   document.getElementById('modalClose').addEventListener('click', () => {
     document.getElementById('playerModal').classList.remove('open');
