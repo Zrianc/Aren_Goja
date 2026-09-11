@@ -1,7 +1,7 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
-const APP_VERSION = 'v1.5.1';
+const APP_VERSION = 'v1.6.0';
 
 let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
@@ -515,17 +515,24 @@ function renderKola() {
       const bodovi = row.plasmani.filter(p => p !== null).reduce((a, b) => a + b, 0);
       const partije = row.plasmani.filter(p => p !== null).length;
       const rez = partije > 0 ? bodovi / partije : null;
-      return { ...row, bodovi, partije, rez };
+      const drekovi = row.plasmani.filter(p => p === 4).length;
+      return { ...row, bodovi, partije, rez, drekovi };
     }).sort((a, b) => {
       if (a.rez === null && b.rez === null) return 0;
       if (a.rez === null) return 1;
       if (b.rez === null) return -1;
-      return a.rez - b.rez;
+      if (a.rez !== b.rez) return a.rez - b.rez;
+      if (a.drekovi !== b.drekovi) return a.drekovi - b.drekovi;
+      return a.muhe - b.muhe;
     });
 
     let rows = '';
-    rows_data.forEach((row, idx) => {
-      const rank = idx + 1;
+    let currentRank = 0;
+    let prevKey = null;
+    rows_data.forEach((row) => {
+      const key = row.rez === null ? `none-${rows.length}` : `${row.rez}|${row.drekovi}|${row.muhe}`;
+      if (key !== prevKey) { currentRank++; prevKey = key; }
+      const rank = currentRank;
       const rezClass = row.rez !== null ? (row.rez <= 2 ? 'rez-good' : row.rez <= 3 ? 'rez-mid' : 'rez-bad') : '';
 
       // Ime(na) igrača
