@@ -116,6 +116,32 @@ function computePlayerStats(playerId) {
   return s;
 }
 
+// Poredak igrača unutar JEDNOG kola (na temelju REZ-a tog kola, s istim tie-break pravilima)
+function computeRoundRankings(round) {
+  const stats = state.players.map(p => {
+    let bodovi = 0, partije = 0, drekovi = 0, muhe = 0;
+    for (const game of round.games) {
+      if (!game) continue;
+      const result = getPlayerPlaceInGame(p.id, game);
+      if (result) {
+        bodovi += result.place; partije++;
+        if (result.place === 4) { drekovi++; muhe += result.muhe; }
+      }
+    }
+    return { id: p.id, partije, rez: partije > 0 ? bodovi / partije : null, drekovi, muhe };
+  }).filter(p => p.partije > 0);
+
+  stats.sort((a, b) => {
+    if (a.rez !== b.rez) return a.rez - b.rez;
+    if (a.drekovi !== b.drekovi) return a.drekovi - b.drekovi;
+    return a.muhe - b.muhe;
+  });
+
+  const rankMap = new Map();
+  stats.forEach((s, idx) => rankMap.set(s.id, { rank: idx + 1, total: stats.length }));
+  return rankMap;
+}
+
 function getTitle(stats, rank, totalPlayers) {
   if (stats.partije === 0) return '';
   if (rank === 1) return '🏆';
@@ -239,6 +265,8 @@ function renderTable() {
 
   if (state.rounds.length > 0) rebuildHistoryHeaders();
 
+  const roundRankings = state.rounds.map(computeRoundRankings);
+
   const players = sortedPlayers();
   body.innerHTML = '';
 
@@ -253,18 +281,19 @@ function renderTable() {
     }
 
     let histCells = '';
-    state.rounds.forEach(round => {
-      let place = null;
-      for (const game of round.games) {
-        if (!game) continue;
-        const r = getPlayerPlaceInGame(p.id, game);
-        if (r) { place = r.place; break; }
+    roundRankings.forEach(rankMap => {
+      const info = rankMap.get(p.id);
+      if (!info) {
+        histCells += `<td class="hist-cell hist-empty" title="Nije došao">&#129340;</td>`;
+        return;
       }
-      if (place === 1) histCells += `<td class="hist-cell hist-1">1</td>`;
-      else if (place === 2) histCells += `<td class="hist-cell hist-2">2</td>`;
-      else if (place === 3) histCells += `<td class="hist-cell hist-3">3</td>`;
-      else if (place === 4) histCells += `<td class="hist-cell hist-drek">&#128169;</td>`;
-      else histCells += `<td class="hist-cell hist-empty" title="Nije došao">&#129340;</td>`;
+      const { rank, total } = info;
+      let cls = '';
+      if (rank === 1) cls = 'hist-1';
+      else if (rank === 2) cls = 'hist-2';
+      else if (rank === 3) cls = 'hist-3';
+      else if (rank === total) cls = 'hist-drek';
+      histCells += `<td class="hist-cell ${cls}" title="${rank}. mjesto u kolu">${rank}</td>`;
     });
 
     const kaznaStr = s.kazna > 0
