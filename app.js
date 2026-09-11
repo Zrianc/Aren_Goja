@@ -1,7 +1,7 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
-const APP_VERSION = 'v1.4.0';
+const APP_VERSION = 'v1.5.1';
 
 let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
@@ -140,7 +140,17 @@ function computeRoundRankings(round) {
   });
 
   const rankMap = new Map();
-  stats.forEach((s, idx) => rankMap.set(s.id, { rank: idx + 1, total: stats.length }));
+  let currentRank = 0;
+  let prevKey = null;
+  stats.forEach((s) => {
+    const key = `${s.rez}|${s.drekovi}|${s.muhe}`;
+    if (key !== prevKey) { currentRank++; prevKey = key; }
+    rankMap.set(s.id, { rank: currentRank, key });
+  });
+
+  const lastKey = stats.length ? `${stats[stats.length - 1].rez}|${stats[stats.length - 1].drekovi}|${stats[stats.length - 1].muhe}` : null;
+  rankMap.forEach(v => { v.isLast = v.key === lastKey; });
+
   return rankMap;
 }
 
@@ -289,12 +299,12 @@ function renderTable() {
         histCells += `<td class="hist-cell hist-empty" title="Nije došao">&#129340;</td>`;
         return;
       }
-      const { rank, total } = info;
+      const { rank, isLast } = info;
       let cls = '';
       if (rank === 1) cls = 'hist-1';
       else if (rank === 2) cls = 'hist-2';
       else if (rank === 3) cls = 'hist-3';
-      else if (rank === total) cls = 'hist-drek';
+      if (isLast && rank !== 1) cls = 'hist-drek';
       histCells += `<td class="hist-cell ${cls}" title="${rank}. mjesto u kolu">${rank}</td>`;
     });
 
