@@ -1,6 +1,7 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
+const APP_VERSION = 'v1.4.0';
 
 let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
@@ -973,6 +974,9 @@ async function init() {
   // Uvijek počni kao gost, admin mora se prijaviti svaki put
   isAdmin = false;
   setAdminMode(false);
+
+  const verEl = document.getElementById('appVersion');
+  if (verEl) verEl.textContent = APP_VERSION;
 
   initMazeDots();
   document.querySelectorAll('.nav-btn').forEach(btn => {
