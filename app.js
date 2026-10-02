@@ -1,7 +1,7 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
-const APP_VERSION = 'v1.6.0';
+const APP_VERSION = 'v2.1.0';
 
 let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
@@ -118,7 +118,15 @@ function computePlayerStats(playerId) {
   return s;
 }
 
-// Poredak igrača unutar JEDNOG kola (na temelju REZ-a tog kola, s istim tie-break pravilima)
+function getTitle(stats, rank, totalPlayers) {
+  if (stats.partije === 0) return '';
+  if (rank === 1) return '🏆';
+  if (rank === totalPlayers) return '💩';
+  if (stats.rez !== null && stats.rez <= 1.5) return '👑';
+  return '';
+}
+
+// Poredak igrača unutar JEDNOG kola (na temelju prosjeka bodova tog kola, s tie-break pravilima)
 function computeRoundRankings(round) {
   const stats = state.players.map(p => {
     let bodovi = 0, partije = 0, drekovi = 0, muhe = 0;
@@ -154,28 +162,50 @@ function computeRoundRankings(round) {
   return rankMap;
 }
 
-function getTitle(stats, rank, totalPlayers) {
-  if (stats.partije === 0) return '';
-  if (rank === 1) return '🏆';
-  if (rank === totalPlayers) return '💩';
-  if (stats.rez !== null && stats.rez <= 1.5) return '👑';
-  return '';
+// Prosjek po poziciji = (K1 + K2 + ... + Kn) / broj dolazaka, za svakog igrača
+function computePositionAverages() {
+  const sums = {};
+  state.players.forEach(p => { sums[p.id] = { sum: 0, count: 0 }; });
+  state.rounds.forEach(round => {
+    const rankMap = computeRoundRankings(round);
+    rankMap.forEach((info, playerId) => {
+      if (!sums[playerId]) sums[playerId] = { sum: 0, count: 0 };
+      sums[playerId].sum += info.rank;
+      sums[playerId].count += 1;
+    });
+  });
+  const result = {};
+  Object.keys(sums).forEach(id => {
+    const { sum, count } = sums[id];
+    result[id] = count > 0 ? sum / count : null;
+  });
+  return result;
 }
 
 function sortedPlayers() {
-  return [...state.players].map(p => ({ ...p, stats: computePlayerStats(p.id) }))
-    .sort((a, b) => {
+  const posAvgMap = computePositionAverages();
+  return [...state.players].map(p => {
+    const stats = computePlayerStats(p.id);
+    stats.avgPos = posAvgMap[p.id] !== undefined ? posAvgMap[p.id] : null;
+    return { ...p, stats };
+  }).sort((a, b) => {
       const as = a.stats, bs = b.stats;
       if (as.partije === 0 && bs.partije === 0) return 0;
       if (as.partije === 0) return 1;
       if (bs.partije === 0) return -1;
-      // 1. Manji rez (bodovi) je bolji
-      if (as.rez !== bs.rez) return as.rez - bs.rez;
+      // 1. Manji prosjek po poziciji je bolji
+      if (as.avgPos !== bs.avgPos) {
+        if (as.avgPos === null) return 1;
+        if (bs.avgPos === null) return -1;
+        return as.avgPos - bs.avgPos;
+      }
       // 2. Kod izjednačenja: manje drekova je bolje
       if (as.drekovi !== bs.drekovi) return as.drekovi - bs.drekovi;
-      // 3. Kod izjednačenja: manje muha je bolje
+      // 3. Kod izjednačenja: manji prosjek bodova je bolji
+      if (as.rez !== bs.rez) return as.rez - bs.rez;
+      // 4. Kod izjednačenja: manje muha je bolje
       if (as.muhe !== bs.muhe) return as.muhe - bs.muhe;
-      // 4. Kod izjednačenja: bolji plasmani kroz partije (više 1. mjesta, pa 2., pa 3.)
+      // 5. Kod izjednačenja: bolji plasmani kroz partije
       if (as.p1 !== bs.p1) return bs.p1 - as.p1;
       if (as.p2 !== bs.p2) return bs.p2 - as.p2;
       if (as.p3 !== bs.p3) return bs.p3 - as.p3;
@@ -278,7 +308,6 @@ function renderTable() {
   if (state.rounds.length > 0) rebuildHistoryHeaders();
 
   const roundRankings = state.rounds.map(computeRoundRankings);
-
   const players = sortedPlayers();
   body.innerHTML = '';
 
@@ -291,6 +320,12 @@ function renderTable() {
       else if (s.rez <= 3) rezClass = 'rez-mid';
       else rezClass = 'rez-bad';
     }
+    let posClass = '';
+    if (s.avgPos !== null) {
+      if (s.avgPos <= 2) posClass = 'rez-good';
+      else if (s.avgPos <= 3) posClass = 'rez-mid';
+      else posClass = 'rez-bad';
+    }
 
     let histCells = '';
     roundRankings.forEach(rankMap => {
@@ -299,13 +334,13 @@ function renderTable() {
         histCells += `<td class="hist-cell hist-empty" title="Nije došao">&#129340;</td>`;
         return;
       }
-      const { rank, isLast } = info;
+      const { rank: rRank, isLast } = info;
       let cls = '';
-      if (rank === 1) cls = 'hist-1';
-      else if (rank === 2) cls = 'hist-2';
-      else if (rank === 3) cls = 'hist-3';
-      if (isLast && rank !== 1) cls = 'hist-drek';
-      histCells += `<td class="hist-cell ${cls}" title="${rank}. mjesto u kolu">${rank}</td>`;
+      if (rRank === 1) cls = 'hist-1';
+      else if (rRank === 2) cls = 'hist-2';
+      else if (rRank === 3) cls = 'hist-3';
+      if (isLast && rRank !== 1) cls = 'hist-drek';
+      histCells += `<td class="hist-cell ${cls}" title="${rRank}. mjesto u kolu">${rRank}</td>`;
     });
 
     const kaznaStr = s.kazna > 0
@@ -329,6 +364,7 @@ function renderTable() {
       <td class="col-num">${s.partije}</td>
       <td class="col-num">${s.bodovi}</td>
       <td class="col-num">${kaznaStr}</td>
+      <td class="col-rez ${posClass}">${s.avgPos !== null ? s.avgPos.toFixed(2) : '—'}</td>
       <td class="col-rez ${rezClass}">${s.rez !== null ? s.rez.toFixed(2) : '—'}</td>
       <td class="col-num">${s.p1}</td>
       <td class="col-num">${s.p2}</td>
@@ -446,7 +482,7 @@ function rebuildHistoryHeaders() {
   const thead = table.querySelector('thead');
   const headerRow = thead.querySelector('tr');
   const allTh = headerRow.querySelectorAll('th');
-  for (let i = allTh.length - 1; i >= 14; i--) allTh[i].remove();
+  for (let i = allTh.length - 1; i >= 15; i--) allTh[i].remove();
   state.rounds.forEach((round, i) => {
     const th = document.createElement('th');
     th.className = 'hist-cell hist-label';
@@ -825,13 +861,15 @@ function renderPlayers() {
     return;
   }
   list.innerHTML = '';
+  const posAvgMap = computePositionAverages();
   state.players.forEach(p => {
     const s = computePlayerStats(p.id);
+    const avgPos = posAvgMap[p.id] !== undefined ? posAvgMap[p.id] : null;
     const div = document.createElement('div');
     div.className = 'player-item';
     div.innerHTML = `
       <span class="player-item-name">${escHtml(p.name)}</span>
-      <span class="player-item-stats">REZ: ${s.rez !== null ? s.rez.toFixed(2) : '—'} · ${s.partije} partija</span>
+      <span class="player-item-stats">PROSJ. POZ: ${avgPos !== null ? avgPos.toFixed(2) : '—'} · PROSJ. BOD: ${s.rez !== null ? s.rez.toFixed(2) : '—'} · ${s.partije} partija</span>
       <button class="btn btn-sm btn-danger" onclick="removePlayer('${p.id}')">✕</button>`;
     list.appendChild(div);
   });
@@ -849,6 +887,7 @@ function openPlayerModal(playerId) {
   const p = state.players.find(x => x.id === playerId);
   if (!p) return;
   const s = computePlayerStats(playerId);
+  const avgPos = computePositionAverages()[playerId] ?? null;
   const rezClass = s.rez !== null ? (s.rez <= 2 ? 'rez-good' : s.rez <= 3 ? 'rez-mid' : 'rez-bad') : '';
   const best = s.plasmani.length > 0 ? Math.min(...s.plasmani) : null;
   const worst = s.plasmani.length > 0 ? Math.max(...s.plasmani) : null;
@@ -859,9 +898,15 @@ function openPlayerModal(playerId) {
       <span class="player-modal-name">${escHtml(p.name)}</span>
       <span style="margin-left:auto;font-size:1.5rem">${getTitle(s)}</span>
     </div>
-    <div style="text-align:center;margin-bottom:16px;">
-      <span class="rez-big ${rezClass}">${s.rez !== null ? s.rez.toFixed(2) : '—'}</span>
-      <span style="font-size:.7rem;color:var(--text-secondary);">REZ</span>
+    <div style="text-align:center;margin-bottom:16px;display:flex;justify-content:center;gap:28px;">
+      <div>
+        <div class="rez-big">${avgPos !== null ? avgPos.toFixed(2) : '—'}</div>
+        <span style="font-size:.7rem;color:var(--text-secondary);">PROSJ. POZ.</span>
+      </div>
+      <div>
+        <span class="rez-big ${rezClass}">${s.rez !== null ? s.rez.toFixed(2) : '—'}</span>
+        <span style="font-size:.7rem;color:var(--text-secondary);">PROSJ. BOD</span>
+      </div>
     </div>
     <div class="stat-grid">
       <div class="stat-item"><span class="stat-val">${state.rounds.length}</span><span class="stat-label">Ukupno kola</span></div>
