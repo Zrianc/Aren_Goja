@@ -1,7 +1,7 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
-const APP_VERSION = 'v2.1.0';
+const APP_VERSION = 'v2.2.0';
 
 let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
@@ -186,7 +186,9 @@ function sortedPlayers() {
   const posAvgMap = computePositionAverages();
   return [...state.players].map(p => {
     const stats = computePlayerStats(p.id);
-    stats.avgPos = posAvgMap[p.id] !== undefined ? posAvgMap[p.id] : null;
+    const baseAvgPos = posAvgMap[p.id] !== undefined ? posAvgMap[p.id] : null;
+    // Kazna (+1 po propuštenom kolu) ide i na prosjek po poziciji, isto kao na prosjek bodova
+    stats.avgPos = baseAvgPos !== null ? baseAvgPos + stats.kazna : null;
     return { ...p, stats };
   }).sort((a, b) => {
       const as = a.stats, bs = b.stats;
@@ -864,7 +866,8 @@ function renderPlayers() {
   const posAvgMap = computePositionAverages();
   state.players.forEach(p => {
     const s = computePlayerStats(p.id);
-    const avgPos = posAvgMap[p.id] !== undefined ? posAvgMap[p.id] : null;
+    const baseAvgPos = posAvgMap[p.id] !== undefined ? posAvgMap[p.id] : null;
+    const avgPos = baseAvgPos !== null ? baseAvgPos + s.kazna : null;
     const div = document.createElement('div');
     div.className = 'player-item';
     div.innerHTML = `
@@ -887,7 +890,8 @@ function openPlayerModal(playerId) {
   const p = state.players.find(x => x.id === playerId);
   if (!p) return;
   const s = computePlayerStats(playerId);
-  const avgPos = computePositionAverages()[playerId] ?? null;
+  const baseAvgPos = computePositionAverages()[playerId] ?? null;
+  const avgPos = baseAvgPos !== null ? baseAvgPos + s.kazna : null;
   const rezClass = s.rez !== null ? (s.rez <= 2 ? 'rez-good' : s.rez <= 3 ? 'rez-mid' : 'rez-bad') : '';
   const best = s.plasmani.length > 0 ? Math.min(...s.plasmani) : null;
   const worst = s.plasmani.length > 0 ? Math.max(...s.plasmani) : null;
