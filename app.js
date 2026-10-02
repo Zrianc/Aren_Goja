@@ -1,7 +1,7 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
-const APP_VERSION = 'v2.2.0';
+const APP_VERSION = 'v2.3.0';
 
 let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
@@ -162,8 +162,8 @@ function computeRoundRankings(round) {
   return rankMap;
 }
 
-// Prosjek po poziciji = (K1 + K2 + ... + Kn) / broj dolazaka, za svakog igrača
-function computePositionAverages() {
+// Zbroj pozicija (K1+K2+...) i broj dolazaka za svakog igrača (sirovo, bez kazne)
+function computePositionSums() {
   const sums = {};
   state.players.forEach(p => { sums[p.id] = { sum: 0, count: 0 }; });
   state.rounds.forEach(round => {
@@ -174,21 +174,22 @@ function computePositionAverages() {
       sums[playerId].count += 1;
     });
   });
-  const result = {};
-  Object.keys(sums).forEach(id => {
-    const { sum, count } = sums[id];
-    result[id] = count > 0 ? sum / count : null;
-  });
-  return result;
+  return sums;
+}
+
+// Prosjek po poziciji = (K1+K2+...+Kn + kazna) / broj dolazaka — kazna ide u zbroj, prije dijeljenja
+function computeAvgPos(playerId, posSums, kazna) {
+  const entry = posSums[playerId];
+  if (!entry || entry.count === 0) return null;
+  return (entry.sum + kazna) / entry.count;
 }
 
 function sortedPlayers() {
-  const posAvgMap = computePositionAverages();
+  const posSums = computePositionSums();
   return [...state.players].map(p => {
     const stats = computePlayerStats(p.id);
-    const baseAvgPos = posAvgMap[p.id] !== undefined ? posAvgMap[p.id] : null;
-    // Kazna (+1 po propuštenom kolu) ide i na prosjek po poziciji, isto kao na prosjek bodova
-    stats.avgPos = baseAvgPos !== null ? baseAvgPos + stats.kazna : null;
+    // Kazna (+1 po propuštenom kolu) ide u zbroj pozicija, prije dijeljenja s brojem dolazaka
+    stats.avgPos = computeAvgPos(p.id, posSums, stats.kazna);
     return { ...p, stats };
   }).sort((a, b) => {
       const as = a.stats, bs = b.stats;
@@ -863,11 +864,10 @@ function renderPlayers() {
     return;
   }
   list.innerHTML = '';
-  const posAvgMap = computePositionAverages();
+  const posSums = computePositionSums();
   state.players.forEach(p => {
     const s = computePlayerStats(p.id);
-    const baseAvgPos = posAvgMap[p.id] !== undefined ? posAvgMap[p.id] : null;
-    const avgPos = baseAvgPos !== null ? baseAvgPos + s.kazna : null;
+    const avgPos = computeAvgPos(p.id, posSums, s.kazna);
     const div = document.createElement('div');
     div.className = 'player-item';
     div.innerHTML = `
@@ -890,8 +890,7 @@ function openPlayerModal(playerId) {
   const p = state.players.find(x => x.id === playerId);
   if (!p) return;
   const s = computePlayerStats(playerId);
-  const baseAvgPos = computePositionAverages()[playerId] ?? null;
-  const avgPos = baseAvgPos !== null ? baseAvgPos + s.kazna : null;
+  const avgPos = computeAvgPos(playerId, computePositionSums(), s.kazna);
   const rezClass = s.rez !== null ? (s.rez <= 2 ? 'rez-good' : s.rez <= 3 ? 'rez-mid' : 'rez-bad') : '';
   const best = s.plasmani.length > 0 ? Math.min(...s.plasmani) : null;
   const worst = s.plasmani.length > 0 ? Math.max(...s.plasmani) : null;
