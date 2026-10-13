@@ -1,7 +1,7 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
-const APP_VERSION = 'v2.3.0';
+const APP_VERSION = 'v2.6.0';
 
 let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
@@ -190,6 +190,8 @@ function sortedPlayers() {
     const stats = computePlayerStats(p.id);
     // Kazna (+1 po propuštenom kolu) ide u zbroj pozicija, prije dijeljenja s brojem dolazaka
     stats.avgPos = computeAvgPos(p.id, posSums, stats.kazna);
+    // Bodovi po mjestima = zbroj mjesta po kolima + kazna (— ako igrač nije igrao nijedno kolo)
+    stats.posSum = posSums[p.id] && posSums[p.id].count > 0 ? posSums[p.id].sum + stats.kazna : null;
     return { ...p, stats };
   }).sort((a, b) => {
       const as = a.stats, bs = b.stats;
@@ -366,6 +368,7 @@ function renderTable() {
       <td class="col-num" style="color:var(--ghost-red)">${s.propustena > 0 ? s.propustena : '—'}</td>
       <td class="col-num">${s.partije}</td>
       <td class="col-num">${s.bodovi}</td>
+      <td class="col-num">${s.posSum !== null ? s.posSum : '—'}</td>
       <td class="col-num">${kaznaStr}</td>
       <td class="col-rez ${posClass}">${s.avgPos !== null ? s.avgPos.toFixed(2) : '—'}</td>
       <td class="col-rez ${rezClass}">${s.rez !== null ? s.rez.toFixed(2) : '—'}</td>
@@ -485,7 +488,7 @@ function rebuildHistoryHeaders() {
   const thead = table.querySelector('thead');
   const headerRow = thead.querySelector('tr');
   const allTh = headerRow.querySelectorAll('th');
-  for (let i = allTh.length - 1; i >= 15; i--) allTh[i].remove();
+  for (let i = allTh.length - 1; i >= 16; i--) allTh[i].remove();
   state.rounds.forEach((round, i) => {
     const th = document.createElement('th');
     th.className = 'hist-cell hist-label';
@@ -872,7 +875,7 @@ function renderPlayers() {
     div.className = 'player-item';
     div.innerHTML = `
       <span class="player-item-name">${escHtml(p.name)}</span>
-      <span class="player-item-stats">PROSJ. POZ: ${avgPos !== null ? avgPos.toFixed(2) : '—'} · PROSJ. BOD: ${s.rez !== null ? s.rez.toFixed(2) : '—'} · ${s.partije} partija</span>
+      <span class="player-item-stats">Prosjek poz: ${avgPos !== null ? avgPos.toFixed(2) : '—'} · Prosjek bod: ${s.rez !== null ? s.rez.toFixed(2) : '—'} · ${s.partije} partija</span>
       <button class="btn btn-sm btn-danger" onclick="removePlayer('${p.id}')">✕</button>`;
     list.appendChild(div);
   });
@@ -904,11 +907,11 @@ function openPlayerModal(playerId) {
     <div style="text-align:center;margin-bottom:16px;display:flex;justify-content:center;gap:28px;">
       <div>
         <div class="rez-big">${avgPos !== null ? avgPos.toFixed(2) : '—'}</div>
-        <span style="font-size:.7rem;color:var(--text-secondary);">PROSJ. POZ.</span>
+        <span style="font-size:.7rem;color:var(--text-secondary);">Prosjek poz.</span>
       </div>
       <div>
         <span class="rez-big ${rezClass}">${s.rez !== null ? s.rez.toFixed(2) : '—'}</span>
-        <span style="font-size:.7rem;color:var(--text-secondary);">PROSJ. BOD</span>
+        <span style="font-size:.7rem;color:var(--text-secondary);">Prosjek bod</span>
       </div>
     </div>
     <div class="stat-grid">
