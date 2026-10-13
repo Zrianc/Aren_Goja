@@ -1,7 +1,7 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
-const APP_VERSION = 'v2.5.1';
+const APP_VERSION = 'v2.8.0';
 
 let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
@@ -153,7 +153,8 @@ function computeRoundRankings(round) {
   stats.forEach((s) => {
     const key = `${s.rez}|${s.drekovi}|${s.muhe}`;
     if (key !== prevKey) { currentRank++; prevKey = key; }
-    rankMap.set(s.id, { rank: currentRank, key });
+    // Mjesta postoje samo 1-4: sve lošije od 3. mjesta je 4. mjesto (drek)
+    rankMap.set(s.id, { rank: Math.min(currentRank, 4), key });
   });
 
   const lastKey = stats.length ? `${stats[stats.length - 1].rez}|${stats[stats.length - 1].drekovi}|${stats[stats.length - 1].muhe}` : null;
@@ -190,7 +191,8 @@ function sortedPlayers() {
     const stats = computePlayerStats(p.id);
     // Kazna (+1 po propuštenom kolu) ide u zbroj pozicija, prije dijeljenja s brojem dolazaka
     stats.avgPos = computeAvgPos(p.id, posSums, stats.kazna);
-    stats.posSum = posSums[p.id] ? posSums[p.id].sum : 0;
+    // Bodovi po mjestima = zbroj mjesta po kolima + kazna (— ako igrač nije igrao nijedno kolo)
+    stats.posSum = posSums[p.id] && posSums[p.id].count > 0 ? posSums[p.id].sum + stats.kazna : null;
     return { ...p, stats };
   }).sort((a, b) => {
       const as = a.stats, bs = b.stats;
@@ -344,7 +346,9 @@ function renderTable() {
       else if (rRank === 2) cls = 'hist-2';
       else if (rRank === 3) cls = 'hist-3';
       if (isLast && rRank !== 1) cls = 'hist-drek';
-      histCells += `<td class="hist-cell ${cls}" title="${rRank}. mjesto u kolu">${rRank}</td>`;
+      // 4. mjesto u kolu prikazuje se kao 💩
+      const cellText = rRank === 4 ? '&#128169;' : rRank;
+      histCells += `<td class="hist-cell ${cls}" title="${rRank}. mjesto u kolu">${cellText}</td>`;
     });
 
     const kaznaStr = s.kazna > 0
@@ -367,7 +371,7 @@ function renderTable() {
       <td class="col-num" style="color:var(--ghost-red)">${s.propustena > 0 ? s.propustena : '—'}</td>
       <td class="col-num">${s.partije}</td>
       <td class="col-num">${s.bodovi}</td>
-      <td class="col-num">${s.posSum > 0 ? s.posSum : '—'}</td>
+      <td class="col-num">${s.posSum !== null ? s.posSum : '—'}</td>
       <td class="col-num">${kaznaStr}</td>
       <td class="col-rez ${posClass}">${s.avgPos !== null ? s.avgPos.toFixed(2) : '—'}</td>
       <td class="col-rez ${rezClass}">${s.rez !== null ? s.rez.toFixed(2) : '—'}</td>
