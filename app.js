@@ -1,7 +1,7 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
-const APP_VERSION = 'v2.6.0';
+const APP_VERSION = 'v2.5.1';
 
 let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
@@ -190,8 +190,7 @@ function sortedPlayers() {
     const stats = computePlayerStats(p.id);
     // Kazna (+1 po propuštenom kolu) ide u zbroj pozicija, prije dijeljenja s brojem dolazaka
     stats.avgPos = computeAvgPos(p.id, posSums, stats.kazna);
-    // Bodovi po mjestima = zbroj mjesta po kolima + kazna (— ako igrač nije igrao nijedno kolo)
-    stats.posSum = posSums[p.id] && posSums[p.id].count > 0 ? posSums[p.id].sum + stats.kazna : null;
+    stats.posSum = posSums[p.id] ? posSums[p.id].sum : 0;
     return { ...p, stats };
   }).sort((a, b) => {
       const as = a.stats, bs = b.stats;
@@ -368,7 +367,7 @@ function renderTable() {
       <td class="col-num" style="color:var(--ghost-red)">${s.propustena > 0 ? s.propustena : '—'}</td>
       <td class="col-num">${s.partije}</td>
       <td class="col-num">${s.bodovi}</td>
-      <td class="col-num">${s.posSum !== null ? s.posSum : '—'}</td>
+      <td class="col-num">${s.posSum > 0 ? s.posSum : '—'}</td>
       <td class="col-num">${kaznaStr}</td>
       <td class="col-rez ${posClass}">${s.avgPos !== null ? s.avgPos.toFixed(2) : '—'}</td>
       <td class="col-rez ${rezClass}">${s.rez !== null ? s.rez.toFixed(2) : '—'}</td>
