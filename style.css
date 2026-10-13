@@ -435,21 +435,15 @@ body:before{
   .brand-logo{width:104px}
 }
 
-/* ===== Glavna tablica: vodoravni slider uvijek vidljiv ===== */
-/* Tablica se pomiče unutar vlastitog okvira (lijevo-desno i gore-dolje), pa je slider
-   uvijek na dnu okvira, a zaglavlje ostaje fiksno na vrhu. */
-.leader-panel .scroll-container{
-  overflow:auto;
-  max-height:max(340px, calc(100vh - 300px));
-  scrollbar-gutter:stable;
+/* ===== Vodoravni slider zalijepljen na dno ekrana (samo desktop preglednik) ===== */
+#stickyHScroll{
+  position:fixed;bottom:0;z-index:60;display:none;
+  overflow-x:scroll;overflow-y:hidden;height:16px;
+  background:rgba(12,9,6,.92);border-top:1px solid rgba(217,164,65,.25);
+  scrollbar-color:rgba(217,164,65,.55) rgba(0,0,0,.4);
 }
-.leader-panel .liga-table thead th{
-  position:sticky;top:0;z-index:6;background:var(--stone);
-}
-.leader-panel .liga-table thead th.sticky-col,
-.leader-panel .liga-table thead th.sticky-col2{z-index:8}
-.leader-panel .scroll-container::-webkit-scrollbar{height:14px;width:12px}
-.leader-panel .scroll-container::-webkit-scrollbar-track{background:rgba(0,0,0,.35)}
-.leader-panel .scroll-container::-webkit-scrollbar-thumb{background:rgba(217,164,65,.45);border-radius:8px;border:2px solid rgba(0,0,0,.35)}
-.leader-panel .scroll-container::-webkit-scrollbar-thumb:hover{background:rgba(217,164,65,.7)}
-.leader-panel .scroll-container{scrollbar-color:rgba(217,164,65,.5) rgba(0,0,0,.35)}
+#stickyHScroll > div{height:1px}
+#stickyHScroll::-webkit-scrollbar{height:14px}
+#stickyHScroll::-webkit-scrollbar-track{background:rgba(0,0,0,.4)}
+#stickyHScroll::-webkit-scrollbar-thumb{background:rgba(217,164,65,.5);border-radius:8px;border:2px solid rgba(0,0,0,.4)}
+#stickyHScroll::-webkit-scrollbar-thumb:hover{background:rgba(217,164,65,.75)}

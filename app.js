@@ -1,7 +1,7 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
-const APP_VERSION = 'v2.8.0';
+const APP_VERSION = 'v2.8.1';
 
 let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
@@ -1163,3 +1163,52 @@ function updateCasinoStats(){
     set('statAvg', avg);
   } catch(e) {}
 }
+
+
+/* ===== Vodoravni slider uvijek vidljiv na dnu ekrana (samo desktop) ===== */
+(function(){
+  const desktop = window.matchMedia('(hover: hover) and (pointer: fine)');
+  let bar = null, inner = null, container = null;
+
+  function update() {
+    if (!bar || !container) return;
+    if (!desktop.matches || currentView !== 'tablica') { bar.style.display = 'none'; return; }
+    const r = container.getBoundingClientRect();
+    const overflowsX = container.scrollWidth > container.clientWidth + 1;
+    // Prikaži samo kad je pravi slider tablice izvan vidljivog dijela ekrana
+    const nativeBarOffscreen = r.bottom > window.innerHeight && r.top < window.innerHeight - 40;
+    if (overflowsX && nativeBarOffscreen) {
+      bar.style.display = 'block';
+      bar.style.left = r.left + 'px';
+      bar.style.width = r.width + 'px';
+      inner.style.width = container.scrollWidth + 'px';
+      if (bar.scrollLeft !== container.scrollLeft) bar.scrollLeft = container.scrollLeft;
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+
+  function setup() {
+    container = document.querySelector('.leader-panel .scroll-container');
+    if (!container) return;
+    bar = document.createElement('div');
+    bar.id = 'stickyHScroll';
+    inner = document.createElement('div');
+    bar.appendChild(inner);
+    document.body.appendChild(bar);
+
+    // Sinkronizacija: povlačenje donjeg slidera pomiče tablicu i obrnuto
+    bar.addEventListener('scroll', () => {
+      if (container.scrollLeft !== bar.scrollLeft) container.scrollLeft = bar.scrollLeft;
+    });
+    container.addEventListener('scroll', () => {
+      if (bar.scrollLeft !== container.scrollLeft) bar.scrollLeft = container.scrollLeft;
+    });
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    setInterval(update, 400); // hvata ponovno crtanje tablice i promjenu prikaza
+    update();
+  }
+
+  document.addEventListener('DOMContentLoaded', setup);
+})();
