@@ -1,7 +1,7 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
-const APP_VERSION = 'v2.8.1';
+const APP_VERSION = 'v2.9.2';
 
 let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
@@ -129,35 +129,45 @@ function getTitle(stats, rank, totalPlayers) {
 // Poredak igrača unutar JEDNOG kola (na temelju prosjeka bodova tog kola, s tie-break pravilima)
 function computeRoundRankings(round) {
   const stats = state.players.map(p => {
-    let bodovi = 0, partije = 0, drekovi = 0, muhe = 0;
+    let bodovi = 0, partije = 0, drekovi = 0, muhe = 0, p1 = 0, p2 = 0, p3 = 0;
     for (const game of round.games) {
       if (!game) continue;
       const result = getPlayerPlaceInGame(p.id, game);
       if (result) {
         bodovi += result.place; partije++;
-        if (result.place === 4) { drekovi++; muhe += result.muhe; }
+        if (result.place === 1) p1++;
+        else if (result.place === 2) p2++;
+        else if (result.place === 3) p3++;
+        else if (result.place === 4) { drekovi++; muhe += result.muhe; }
       }
     }
-    return { id: p.id, partije, rez: partije > 0 ? bodovi / partije : null, drekovi, muhe };
+    return { id: p.id, partije, bodovi, drekovi, muhe, p1, p2, p3 };
   }).filter(p => p.partije > 0);
 
   stats.sort((a, b) => {
-    if (a.rez !== b.rez) return a.rez - b.rez;
+    // 1. zbroj bodova skupljen u partijama tog kola (manje je bolje)
+    if (a.bodovi !== b.bodovi) return a.bodovi - b.bodovi;
+    // 2. broj drekova, 3. broj muha, 4. broj prvih mjesta u tom kolu
     if (a.drekovi !== b.drekovi) return a.drekovi - b.drekovi;
-    return a.muhe - b.muhe;
+    if (a.muhe !== b.muhe) return a.muhe - b.muhe;
+    // isti drekovi i muhe: više prvih mjesta u kolu je bolje, pa drugih, pa trećih
+    if (a.p1 !== b.p1) return b.p1 - a.p1;
+    if (a.p2 !== b.p2) return b.p2 - a.p2;
+    return b.p3 - a.p3;
   });
 
   const rankMap = new Map();
   let currentRank = 0;
   let prevKey = null;
   stats.forEach((s) => {
-    const key = `${s.rez}|${s.drekovi}|${s.muhe}`;
+    const key = `${s.bodovi}|${s.drekovi}|${s.muhe}|${s.p1}|${s.p2}|${s.p3}`;
     if (key !== prevKey) { currentRank++; prevKey = key; }
     // Mjesta postoje samo 1-4: sve lošije od 3. mjesta je 4. mjesto (drek)
     rankMap.set(s.id, { rank: Math.min(currentRank, 4), key });
   });
 
-  const lastKey = stats.length ? `${stats[stats.length - 1].rez}|${stats[stats.length - 1].drekovi}|${stats[stats.length - 1].muhe}` : null;
+  const last = stats[stats.length - 1];
+  const lastKey = last ? `${last.bodovi}|${last.drekovi}|${last.muhe}|${last.p1}|${last.p2}|${last.p3}` : null;
   rankMap.forEach(v => { v.isLast = v.key === lastKey; });
 
   return rankMap;
@@ -207,12 +217,13 @@ function sortedPlayers() {
       }
       // 2. Kod izjednačenja: manje drekova je bolje
       if (as.drekovi !== bs.drekovi) return as.drekovi - bs.drekovi;
-      // 3. Kod izjednačenja: manji prosjek bodova je bolji
-      if (as.rez !== bs.rez) return as.rez - bs.rez;
-      // 4. Kod izjednačenja: manje muha je bolje
+      // 3. Kod izjednačenja: manje muha je bolje
       if (as.muhe !== bs.muhe) return as.muhe - bs.muhe;
-      // 5. Kod izjednačenja: bolji plasmani kroz partije
+      // 4. Kod izjednačenja: više prvih mjesta je bolje
       if (as.p1 !== bs.p1) return bs.p1 - as.p1;
+      // 5. Kod izjednačenja: manji prosjek bodova je bolji
+      if (as.rez !== bs.rez) return as.rez - bs.rez;
+      // 6. Kod izjednačenja: više drugih, pa trećih mjesta
       if (as.p2 !== bs.p2) return bs.p2 - as.p2;
       if (as.p3 !== bs.p3) return bs.p3 - as.p3;
       return bs.partije - as.partije;
@@ -561,23 +572,29 @@ function renderKola() {
       const partije = row.plasmani.filter(p => p !== null).length;
       const rez = partije > 0 ? bodovi / partije : null;
       const drekovi = row.plasmani.filter(p => p === 4).length;
-      return { ...row, bodovi, partije, rez, drekovi };
+      const p1 = row.plasmani.filter(p => p === 1).length;
+      const p2 = row.plasmani.filter(p => p === 2).length;
+      const p3 = row.plasmani.filter(p => p === 3).length;
+      return { ...row, bodovi, partije, rez, drekovi, p1, p2, p3 };
     }).sort((a, b) => {
       if (a.rez === null && b.rez === null) return 0;
       if (a.rez === null) return 1;
       if (b.rez === null) return -1;
-      if (a.rez !== b.rez) return a.rez - b.rez;
+      if (a.bodovi !== b.bodovi) return a.bodovi - b.bodovi;
       if (a.drekovi !== b.drekovi) return a.drekovi - b.drekovi;
-      return a.muhe - b.muhe;
+      if (a.muhe !== b.muhe) return a.muhe - b.muhe;
+      if (a.p1 !== b.p1) return b.p1 - a.p1;
+      if (a.p2 !== b.p2) return b.p2 - a.p2;
+      return b.p3 - a.p3;
     });
 
     let rows = '';
     let currentRank = 0;
     let prevKey = null;
     rows_data.forEach((row) => {
-      const key = row.rez === null ? `none-${rows.length}` : `${row.rez}|${row.drekovi}|${row.muhe}`;
+      const key = row.rez === null ? `none-${rows.length}` : `${row.bodovi}|${row.drekovi}|${row.muhe}|${row.p1}|${row.p2}|${row.p3}`;
       if (key !== prevKey) { currentRank++; prevKey = key; }
-      const rank = currentRank;
+      const rank = Math.min(currentRank, 4);
       const rezClass = row.rez !== null ? (row.rez <= 2 ? 'rez-good' : row.rez <= 3 ? 'rez-mid' : 'rez-bad') : '';
 
       // Ime(na) igrača
