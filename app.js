@@ -1,7 +1,7 @@
 /* ===== ČOVJEČE LIGA - app.js ===== */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzaLXot1Cc4SwywMZEucyG5hYLSVNoE1GlgVxQY0PXFjlF-DJ-4SjK4SXnlJXaJKzg/exec';
-const APP_VERSION = 'v2.9.2';
+const APP_VERSION = 'v2.10.0';
 
 let state = { leagueName: 'ONK-BAK', players: [], rounds: [] };
 let isSaving = false;
@@ -176,13 +176,15 @@ function computeRoundRankings(round) {
 // Zbroj pozicija (K1+K2+...) i broj dolazaka za svakog igrača (sirovo, bez kazne)
 function computePositionSums() {
   const sums = {};
-  state.players.forEach(p => { sums[p.id] = { sum: 0, count: 0 }; });
+  state.players.forEach(p => { sums[p.id] = { sum: 0, count: 0, drekKola: 0 }; });
   state.rounds.forEach(round => {
     const rankMap = computeRoundRankings(round);
     rankMap.forEach((info, playerId) => {
-      if (!sums[playerId]) sums[playerId] = { sum: 0, count: 0 };
+      if (!sums[playerId]) sums[playerId] = { sum: 0, count: 0, drekKola: 0 };
       sums[playerId].sum += info.rank;
       sums[playerId].count += 1;
+      // 💩 u K stupcima: kolo u kojem je igrač bio 4. (zadnji)
+      if (info.rank === 4) sums[playerId].drekKola += 1;
     });
   });
   return sums;
@@ -202,6 +204,7 @@ function sortedPlayers() {
     // Kazna (+1 po propuštenom kolu) ide u zbroj pozicija, prije dijeljenja s brojem dolazaka
     stats.avgPos = computeAvgPos(p.id, posSums, stats.kazna);
     // Bodovi po mjestima = zbroj mjesta po kolima + kazna (— ako igrač nije igrao nijedno kolo)
+    stats.drekKola = posSums[p.id] ? posSums[p.id].drekKola : 0;
     stats.posSum = posSums[p.id] && posSums[p.id].count > 0 ? posSums[p.id].sum + stats.kazna : null;
     return { ...p, stats };
   }).sort((a, b) => {
@@ -215,8 +218,8 @@ function sortedPlayers() {
         if (bs.avgPos === null) return -1;
         return as.avgPos - bs.avgPos;
       }
-      // 2. Kod izjednačenja: manje drekova je bolje
-      if (as.drekovi !== bs.drekovi) return as.drekovi - bs.drekovi;
+      // 2. Kod izjednačenja: manje drekova po kolima (💩 u K stupcima) je bolje
+      if (as.drekKola !== bs.drekKola) return as.drekKola - bs.drekKola;
       // 3. Kod izjednačenja: manje muha je bolje
       if (as.muhe !== bs.muhe) return as.muhe - bs.muhe;
       // 4. Kod izjednačenja: više prvih mjesta je bolje
